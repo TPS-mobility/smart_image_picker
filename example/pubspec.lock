@@ -157,7 +157,7 @@ packages:
     source: sdk
     version: "0.0.99"
   smart_image_picker:
-    dependency: "direct dev"
+    dependency: "direct main"
     description:
       path: ".."
       relative: true
