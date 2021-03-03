@@ -1,10 +1,9 @@
 library smart_image_picker;
+import 'dart:async';
 import 'dart:io';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
-import 'package:provider/provider.dart';
 
-import 'bloc.dart';
 import 'custom_loader_widget.dart';
 
 class ImageSelector {
@@ -12,6 +11,7 @@ class ImageSelector {
   String _negativeText;
   String _message;
   final _picker = ImagePicker();
+  StreamController<bool> _controller = StreamController<bool>();
 
 
   /// Opens dialog to choose image from gallery or camera
@@ -22,65 +22,73 @@ class ImageSelector {
     _message = message;
     await showDialog(
       context: context,
-      builder: (context) => ChangeNotifierProvider(
-          create: (_) => UserBloc(),
-          child: Consumer<UserBloc>(
-            builder: (context, userBloc, child) {
-              return CustomLoaderWidget(
-                isTrue: userBloc.state == ViewState.Busy,
-                child: new AlertDialog(
-                  title: Text(message),
-                  content: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: <Widget>[
-                      Divider(
-                        color: Colors.grey[400],
-                      ),
-                      ListTile(
-                        onTap: () async {
-                          File selectedImage =
-                          await _getImage(context, ImageSource.camera);
-                          if (selectedImage != null) {
-                            {
-                              var result = await _showSelectedImageDialog(
-                                  selectedImage, context);
-                              if (result) {
-                                userBloc.setState(ViewState.Busy);
-                                await onSelect(selectedImage);
-                              } else
-                                Navigator.pop(context);
-                            }
-                          }
-                        },
-                        title: Text("Take Photo"),
-                      ),
-                      ListTile(
-                        onTap: () async {
-                          File selectedImage =
-                          await _getImage(context, ImageSource.gallery);
-                          if (selectedImage != null) {
+      builder: (context) => StreamBuilder(
+        initialData: false,
+        stream: _controller.stream,
+        builder: (context, snapshot){
+          return WillPopScope(
+            onWillPop: () async {
+              _controller.close();
+              return true;},
+            child: CustomLoaderWidget(
+              isTrue: snapshot.hasData && snapshot.data,
+              child: new AlertDialog(
+                title: Text(message),
+                content: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: <Widget>[
+                    Divider(
+                      color: Colors.grey[400],
+                    ),
+                    ListTile(
+                      onTap: () async {
+                        File selectedImage =
+                        await _getImage(context, ImageSource.camera);
+                        if (selectedImage != null) {
+                          {
                             var result = await _showSelectedImageDialog(
                                 selectedImage, context);
                             if (result) {
-                              userBloc.setState(ViewState.Busy);
+                              _controller.sink.add(true);
                               await onSelect(selectedImage);
+                              Navigator.pop(context);
                             } else
                               Navigator.pop(context);
                           }
-                        },
-                        title: Text("Select from Gallery"),
-                      ),
-                    ],
-                  ),
-                  actions: <Widget>[
-                    new FlatButton(
-                        onPressed: () => Navigator.pop(context),
-                        child: new Text(negativeText))
+                        }
+                      },
+                      title: Text("Take Photo"),
+                    ),
+                    ListTile(
+                      onTap: () async {
+                        File selectedImage =
+                        await _getImage(context, ImageSource.gallery);
+                        if (selectedImage != null) {
+                          var result = await _showSelectedImageDialog(
+                              selectedImage, context);
+                          if (result) {
+                            _controller.sink.add(true);
+                            await onSelect(selectedImage);
+                            Navigator.pop(context);
+                          } else
+                            Navigator.pop(context);
+                        }
+                      },
+                      title: Text("Select from Gallery"),
+                    ),
                   ],
                 ),
-              );
-            },
-          )),
+                actions: <Widget>[
+                  new FlatButton(
+                      onPressed: () => Navigator.pop(context),
+                      child: new Text(negativeText))
+                ],
+              ),
+            ),
+          );
+        }
+
+      ),
     );
   }
 
