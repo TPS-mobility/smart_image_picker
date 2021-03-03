@@ -1,8 +1,8 @@
 name: smart_image_picker
 description: Picker asks to open gallery or camera, preview image and a callback function.
 version: 0.0.1
-author: TPS Mobility
-homepage:
+author: TPS Mobility<tpsmobilityservices@gmail.com>
+homepage: https://github.com/TPS-mobility/smart_image_picker.git
 
 environment:
   sdk: ">=2.7.0 <3.0.0"

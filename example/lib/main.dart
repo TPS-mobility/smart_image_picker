@@ -1,7 +1,7 @@
 import 'dart:typed_data';
 
 import 'package:flutter/material.dart';
-import 'package:image_selector_lib/image_selector_lib.dart';
+import 'package:smart_image_picker/smart_image_picker.dart';
 void main() {
   runApp(MyApp());
 }
