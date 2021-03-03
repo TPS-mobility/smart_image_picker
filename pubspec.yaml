@@ -1,0 +1,23 @@
+name: smart_image_picker
+description: Picker asks to open gallery or camera, preview image and a callback function.
+version: 0.0.1
+author: TPS Mobility
+homepage:
+
+environment:
+  sdk: ">=2.7.0 <3.0.0"
+  flutter: ">=1.17.0"
+
+dependencies:
+  flutter:
+    sdk: flutter
+  image_picker: ^0.6.7+22
+  provider: ^4.3.3
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+flutter:
+  assets:
+    - assets/
